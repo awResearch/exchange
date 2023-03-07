@@ -1,0 +1,127 @@
+Release Notes for SAP .NET Connector 3.1 (NCo 3.1)
+==================================================
+
+Please read the license terms and release notes carefully.
+
+-----------------------------------------------------------------------------------------
+
+This product is property of SAP SE. You are granted usage of this product in your
+development environment. Deploying this product with your application in a production
+environment is only valid with the sufficient amount of SAP Software Licenses according
+to the terms and conditions of SAP Software.
+
+THIS SOFTWARE IS PROVIDED "AS IS" WITHOUT WARRANTY OF ANY KIND, EITHER EXPRESSED OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS
+FOR A PARTICULAR PURPOSE, OR NON-INFRINGEMENT.
+SAP SE further does not warrant the accuracy or completeness of the information, text,
+graphics, links or other items contained within these materials. SAP SE shall not be
+liable for any special, indirect, incidental or consequential damages, including without
+limitation, lost revenues or lost profits, which may result from the use of these
+materials. The information in this software is subject to change without notice and does
+not represent a commitment on the part of SAP SE in the future.
+
+-----------------------------------------------------------------------------------------
+
+Release Notes NCo 3.1.2
+
+* Bugfix: Repository management
+  When trying to lookup metadata with a repository, a CommunicationException could occur
+  even though the associated destinations are fully functional. This could happen if the
+  configuration of the destination currently used for lookups has been modified recently.
+  Under certain circumstances it could happen in this case that the destination list is
+  not updated properly within the repository.
+
+* Bugfix: tRFC runtime
+  A tRFC unit containing more than one function module could not be processed properly
+  in the receiving ABAP system. It was actually simply ignored.
+
+* Bugfix: default server configuration implementation with app.config
+  In 3.1.1 it was not possible to configure a WebSocket RFC server using the app.config. 
+  When providing the WSPORT parameter, the program fails to start with 
+  RfcInvalidStateException: No ServerConfiguration defined, which is actually not true, 
+  and when checking dev_nco_rfc.log you can find there the exception below:
+  System.Configuration.ConfigurationErrorsException: Unrecognized attribute 'WSPORT'
+
+* Bugfix: Log file
+  When configuring a traceDirectory in the app.config of an NCo application, still a
+  dev_nco_rfc.log file was generated in the working directory, with either the single
+  entry that the trace file location has changed or informing about the default/minimal 
+  trace level that has been set in the app.config file.
+
+* Bugfix: SapLogonIniConfiguration
+  When trying to use SAPUILandscape.xml as basis for destination configurations on a system 
+  with a 64-bit SAP Gui installation, NCo was raising an exception similar to
+  SAP.Middleware.Connector.RfcInvalidStateException: Unable to find saplogon file
+    at SAP.Middleware.Connector.SapLogonIniConfiguration.GetIniFullPath()
+
+* Enhancement: Structure API
+  Interface IRfcStructure was enhanced to offer the possibility for a structure to be
+  converted to a string and vice versa via the new methods Stringify() and 
+  Destringify(string). See API documentation for details.  
+
+* Enhancement: repository metadata handling
+  If a datatype is defined as structure, but shall be used as table, an anonymous table type 
+  is generated automatically in all cases and not only if such a structure is used for a 
+  table parameter.
+
+* Enhancement: decnumber library
+  Shared libsapICUdecnumber.dll is replaced with a static equivalent. As a consequence
+  associated APIs influencing loading this library have been set to be deprecated and
+  do have not any effect anymore.
+
+* Enhancement: integrity
+  All assemblies are now signed with authenticode signing.
+
+-----------------------------------------------------------------------------------------
+
+Release Notes NCo 3.1.1 (GA version)
+JCo 3.1 is the successor of JCo 3.0. In note 3152653 you can find the .NET runtimes and
+Windows releases, for which the new version is supported. Please note that some releases
+have been dropped and that the minimum .NET framework version has been raised to 4.6.2.
+NCo 3.1 is supposed to be byte-cod compatible to NCo 3.0 as long as you are not using
+methods or fields, that have been set to obsolete in NCo 3.0. Those have been removed
+from NCo 3.1. Below you can find alist of the most important new features now supported
+with NCo 3.1.
+
+* Support for fast serialization
+  The RFC runtime of NCo can now serialize the function module data in the fast
+  serialization mode, if the partner system supports that serialization format as well.
+  Technically, it is a column-based serialization of the data, which has been shipped
+  initially with application server ABAP 7.51 and has been downported later so that also
+  older systems benefit from the performance improvements of that serialization. Note
+  2372888 describes the ABAP system prerequisites.
+  Find more details about the new configuration parameters in the API documentation of
+  the class RfcConfigParameters.
+* WebSocket RFC communication
+  RFC communication is possible also using WebSocket technology instead of the existing
+  CPIC based one. The WebSocket RFC communication feature was initially shipped with ABAP
+  Platform 1909 (application server ABAP 7.54). Both client and server side communication
+  are supported, i.e. NCo calling an ABAP system and an ABAP system is calling NCo via
+  WebSocket RFC. The ABAP platform documentation for WebSocket RFC
+  (see https://help.sap.com/viewer/753088fc00704d0a80e7fbd6803c8adb/201909.000/en-US/51f1edadb2754e539f6e6335dd1eb4cc.html")
+  describes what needs to be done in the ABAP system as a prerequisite, how a destination
+  pointing to an NCo WebSocket RFC server needs to be configured in the ABAP system, and
+  what are the restrictions.
+  Find more details about the new configuration parameters in the API documentation of
+  the class RfcConfigParameters.
+* CPIC performance improvement in WAN scenarios
+  When executing requests in WAN scenarios and exchanging large data amounts, the
+  streaming feature of CPIC allows to send data without waiting for acknowledgements for
+  each data package. Thus, latency effects and overall execution times are dramatically
+  decreased. NCo turns on CPIC streaming automatically, if the partner system supports it
+  as well.
+* Application Server maintenance support
+  For destinations configured for CPIC based communication with load balancing, NCo will
+  check regularly which application servers belong to the logon group. If an application 
+  server is taken out of the group, e.g. for maintenance purposes, NCo will recognize and 
+  after a short time, all connections pointing to this application server will be closed.
+  Note: This works only, if the logon group is flagged as "External RFC enabled".
+-----------------------------------------------------------------------------------------
+
+Info about versions 3.1.0.x
+
+3.1.0.x were early versions of JCo 3.1 that were allowed to be used in restricted use
+cases only, within a small set of SAP tools, e.g. Analysis Office.
+
+Copyright © 2009-2022 SAP SE. All Rights Reserved.
+
